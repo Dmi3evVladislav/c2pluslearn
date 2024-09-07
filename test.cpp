@@ -1,6 +1,10 @@
 #include <iostream>
 
 using i = int; //Определяем псевдоним для типов (typedef)
+using std::cout;
+using std::cin;
+using std::endl;
+
 
 i age {18};
 float lol;    //int lol; int lol {}; int lol {0};
@@ -19,17 +23,17 @@ int main() //Определяем функцию
 {
     age = 19;
     
-    std::cout << "Возраст: " << age << " lol: " << lol << std::endl; //вывод в консоль
+    cout << "Возраст: " << age << " lol: " << lol << endl; //вывод в консоль
 
     lol = 2.18;
 
-    std::cout << "Возраст: " << age << " lol: " << lol << " " << sizeof(age) << std::endl; //sizeof - размер
+    cout << "Возраст: " << age << " lol: " << lol << " " << sizeof(age) << endl; //sizeof - размер
 
-    std::cout << "Введите вес: ";
-    std::cin >> weight;
-    std::cout << "Ваш вес: " << weight << std::endl;
+    cout << "Введите вес: ";
+    cin >> weight;
+    cout << "Ваш вес: " << weight << endl;
 
-    std::cout << "Введите два целых числа через пробел" << std::endl;
+    cout << "Введите два целых числа через пробел" << endl;
     i a;
     i b; 
     /*
@@ -38,8 +42,8 @@ int main() //Определяем функцию
 
         Приоритеты опираций как в JS и Python, скобки роляют
     */ 
-    std::cin >> a >> b;
-    std::cout << "Сумма: " << a+b << std::endl;
+    cin >> a >> b;
+    cout << "Сумма: " << a+b << endl;
     
     return 0; //Завершаем выполнение функции и возвращаем 0
 }
