@@ -2,6 +2,7 @@
 
 using i = int; //Определяем псевдоним для типов (typedef)
 using std::cout;
+using std::wcout;
 using std::cin;
 using std::endl;
 
@@ -21,12 +22,13 @@ i weight;
 
 int main() //Определяем функцию
 {
+    setlocale(LC_ALL, "");
     age = 19;
     
     cout << "Возраст: " << age << " lol: " << lol << endl; //вывод в консоль
 
     lol = 2.18;
-
+    
     cout << "Возраст: " << age << " lol: " << lol << " " << sizeof(age) << endl; //sizeof - размер
 
     cout << "Введите вес: ";
@@ -44,6 +46,7 @@ int main() //Определяем функцию
     */ 
     cin >> a >> b;
     cout << "Сумма: " << a+b << endl;
+
     
     return 0; //Завершаем выполнение функции и возвращаем 0
 }
