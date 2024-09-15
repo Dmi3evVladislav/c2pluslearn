@@ -3,9 +3,11 @@
 using std::cout;
 using std::cin;
 using std::endl;
+using std::wcout;
 
 
 int main() {
+    setlocale(LC_ALL, "");
 
     const int origPasw {2416};
     const int &pasw {origPasw}; //Ссылка
@@ -13,44 +15,44 @@ int main() {
     
     int password;
 
-    cout << "Введите пароль:" << endl;
+    wcout << L"Введите пароль:" << endl;
 
     cin >> password;
 
     // условия if, else if, else
 
     if(password == pasw) {
-        cout << "Доступ разрешен" << endl;
+        wcout << L"Доступ разрешен" << endl;
     }
     else if (password == 2406) {
-        cout << "Почти правильно" << endl;
+        wcout << L"Почти правильно" << endl;
     }
     else {
-        cout << "Доступ запрещен" << endl;
+        wcout << L"Доступ запрещен" << endl;
     }
 
     //switch-case
 
     switch (password) {
-        case 2416: cout << "Доступ разрешен" << endl; break;
-        case 2406: cout << "Почти правильно" << endl; break;
-        default: cout << "Доступ запрещен" << endl; break;
+        case 2416: wcout << L"Доступ разрешен" << endl; break;
+        case 2406: wcout << L"Почти правильно" << endl; break;
+        default: wcout << L"Доступ запрещен" << endl; break;
     }
 
     int password2;
     bool alowed {false};
 
-    cout << "Введите пароль:" << endl;
+    wcout << L"Введите пароль:" << endl;
 
     //Цикл while
 
     while(!alowed){
         cin >> password2;
         if(password2 != pasw) {
-            cout << "Доступ запрещен. Попробуйте снова:" << endl;
+            wcout << L"Доступ запрещен. Попробуйте снова:" << endl;
         }
         else {
-            cout << "Доступ разрешен" << endl;
+            wcout << L"Доступ разрешен" << endl;
             alowed = true;
         }
     }
@@ -58,7 +60,7 @@ int main() {
     //Цикл for
 
     for(int i {0}; i < 3; i++) {
-        cout << "aboba" << endl;
+        wcout << L"aboba" << endl;
     }
 
     //Цикл for-each
