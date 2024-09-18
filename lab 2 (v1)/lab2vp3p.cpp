@@ -7,28 +7,36 @@ int main() {
     int m;
     cout << "m: ";
     cin >> m;
+    double value;
+    bool isOutOfRange = false;
 
     switch (m) {
         case 1:
         case 2:
-        cout << (log(fabs(m+pow(m,2))) + sqrt(14)) << endl;
+        value = log(fabs(m+pow(m,2))) + sqrt(14);
         break;
         case 3: 
-        cout << ((m+3)/log(m)) << endl;
+        value = (m+3)/log(m);
         break;
         case 4:
         case 7: 
-        cout << (pow(m, 3) + 2*(pow(m, 2) + 1)) << endl;
+        value = pow(m, 3) + 2*(pow(m, 2) + 1);
         break;
         case 5: 
-        cout << (744-pow(m, 2)*pow(sin(m),2)) << endl;
+        value = 744-pow(m, 2)*pow(sin(m),2);
         break;
         case 6: 
-        cout << (log(fabs(1+sqrt(m)))) << endl;
+        value = log(fabs(1+sqrt(m)));
         break;
         default:
-        cout << "[1, 7] doesn't include number: " << m << endl;
+        isOutOfRange = true;
         break;
+    }
+    if (!isOutOfRange) {
+            cout << value << endl;
+    }
+    else {
+        cout << "[1, 7] doesn't include number: " << m << endl;
     }
 
     return 0;

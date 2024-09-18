@@ -9,12 +9,12 @@ int main() {
     cout << "a: ";
     cin >> a;
 
-    if(a < 0) {
+    if(a <= 0) {
         y = -a;
     }
-    else if (a == 0) {
-        y = 0;
-    }
+    // else if (a == 0) {
+    //     y = 0;
+    // }
     else if ((a > 0) && (a <= 2)){
         y = -pow(a, 2);
     }
