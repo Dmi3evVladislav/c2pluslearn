@@ -191,6 +191,10 @@ void MenuWork() {
 }
 
 void TablePrintHead() {
+    for (int i = 0; i < 164; ++i) {
+        cout << "\033[2m-\033[0m";
+    }
+    cout << endl;
     cout << " No \033[2m|\033[0m First Name";
     for (int i = 0; i < 16; ++i) {
         cout << " ";
