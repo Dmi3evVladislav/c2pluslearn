@@ -17,10 +17,12 @@ struct Student
         int joinYear {2024};
         char group[26] = "";
         int grades[4];
+        float avgGrade {0};
 };
 
 Student students[30];
 int studentsNum {0};
+char groups[30][15] {""};
 
 void CloseProgramm();
 void PrintMenu();
@@ -28,6 +30,10 @@ void MenuWork();
 void TablePrintHead();
 void UserInput(char string[]);
 void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int grades[4], int number);
+void BestStudent();
+void CheckGroups();
+void copyStudent(Student& dest, const Student& src);
+void filterStudentsByGroup(const Student students[], int studentsCount, Student filteredStudents[], int maxFilteredCount, const char* targetGroup);
 
 int main() {
     cout << "\033[2J\033[1;1H";
@@ -70,7 +76,8 @@ void PrintMenu() {
     cout << "\033[1m1) /add\033[0m - Add new student" << endl;
     cout << "\033[1m2) /edit\033[0m - Edit student entry" << endl;
     cout << "\033[1m3) /delete\033[0m - Delete student entry" << endl;
-    cout << "\033[1m4) /exit\033[0m - Exit programm" << endl;
+    cout << "\033[1m4) /best\033[0m - Show first and second student name with best avg. grade" << endl;
+    cout << "\033[1m5) /exit\033[0m - Exit programm" << endl;
 }
 
 void CreateUser(){
@@ -116,7 +123,7 @@ void CreateUser(){
     bool isReady {false};
     while (!isReady) {
         cin >> usAnsw;
-        if (strcmp(usAnsw, "y") == 0){
+        if (strcmp(usAnsw, "y") == 0 || strcmp(usAnsw, "н") == 0){
             cout << "\033[2J\033[1;1H";
 
             strcpy(students[studentsNum].firstName, student.firstName);
@@ -129,12 +136,13 @@ void CreateUser(){
             students[studentsNum].grades[2] = student.grades[2];
             students[studentsNum].grades[3] = student.grades[3];
             studentsNum +=1 ;
+            students[studentsNum].avgGrade = (student.grades[0] + student.grades[1] + student.grades[2] + student.grades[3]) / 4. ;
 
             cout << "\n\033[1;32mUser added\033[0m\n" << endl;
             MenuWork();
             isReady = true;
         }
-        else if (strcmp(usAnsw, "n") == 0) {
+        else if (strcmp(usAnsw, "n") == 0 || strcmp(usAnsw, "т") == 0) {
             cout << "\033[2J\033[1;1H";
             cout << "\n\033[1;33mData cleared. Try again\033[0m\n" << endl;
             MenuWork();
@@ -161,15 +169,25 @@ void MenuWork() {
     PrintMenu();
     char string[MAX_LENGTH] = "";
     UserInput(string);
-    if (strcmp(string, "/exit") == 0 or strcmp(string, "4") == 0) {
+    if (strcmp(string, "/exit") == 0 or strcmp(string, "5") == 0) {
         CloseProgramm();
-    }
-    else if (strcmp(string, "/add") == 0 or strcmp(string, "1") == 0) {
-        CreateUser();
     }
     else if (strcmp(string, "/showall") == 0 or strcmp(string, "0") == 0) {
         ShowAllUsers();
     }
+    else if (strcmp(string, "/add") == 0 or strcmp(string, "1") == 0) {
+        CreateUser();
+    }
+    else if (strcmp(string, "/edit") == 0 or strcmp(string, "2") == 0) {
+        cout << "In dev" << endl;
+    }
+    else if (strcmp(string, "/delete") == 0 or strcmp(string, "3") == 0) {
+        cout << "In dev" << endl;
+    }
+    else if (strcmp(string, "/best") == 0 or strcmp(string, "4") == 0) {
+        BestStudent();
+    }
+    
 }
 
 void TablePrintHead() {
@@ -189,10 +207,11 @@ void TablePrintHead() {
     for (int i = 0; i < 16; ++i) {
         cout << " ";
     }
-    cout << "\033[2m|\033[0m Join Year";
+    cout << "\033[2m|\033[0m";
     for (int i = 0; i < 17; ++i) {
         cout << " ";
     }
+    cout << "Join Year ";
     cout << "\033[2m|\033[0m Grades for 4 subj";
     for (int i = 0; i < 9; ++i) {
         cout << " ";
@@ -228,15 +247,107 @@ void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], i
     for (int i = 0; i < 26-strlen(gname); ++i) {
         cout << " ";
     }
-    cout << "\033[2m|\033[0m " << jyear;
+    cout << "\033[2m|\033[0m";
     for (int i = 0; i < 26-4; ++i) {
         cout << " ";
     }
-    cout << "\033[2m|\033[0m ";
+    cout << jyear << " ";
+    cout << "\033[2m|\033[0m";
+
+    //19-7
+    cout << "      "; //6
     for (int i = 0; i < 4; ++i) {
         cout << grades[i] << " ";
     }
     cout << endl;
+}
+
+void BestStudent() {
+    int bestStNum {0};
+    float bestAvg {0.0};
+    int acceptGroups {0};
+    int selectedGroup {0};
+    Student studentsInGroup[30];
+    for (int i = 0; i < 30; ++i){
+        if (students[i].avgGrade < bestAvg) continue;
+        bestAvg = students[i].avgGrade;
+        bestStNum = i;
+    }
+    if (bestAvg == 0.0) {
+        cout << "\033[2J\033[1;1H";
+        cout << "Student's table is empty" << endl;
+    }
+    else {
+        cout << "\033[2J\033[1;1H";
+        cout << "Best student in table: ";
+        cout << "\n" << students[bestStNum-1].firstName << " " << students[bestStNum-1].secondName << " | " << bestAvg << "\n" <<  endl;
+        cout << "Select group:" << endl;
+        CheckGroups();
+        for (int i = 0; i < 30; ++i) {
+            if(strlen(groups[i]) != 0){
+                cout << "\033[1m" << i + 1 << ") " << groups[i] << "\033[0m" << endl;
+                acceptGroups += 1;
+            } 
+        }
+        cin >> selectedGroup;
+
+        if(selectedGroup > acceptGroups || selectedGroup <= 0) {
+            cout << "Group doesn't exist" << endl;
+        }
+        else {
+            filterStudentsByGroup(students, 30, studentsInGroup, 40, groups[selectedGroup-1]);
+            bestAvg = 0.0;
+            bestStNum = 0;
+            for(int i = 0; i < 30; ++i) {
+                if(strlen(studentsInGroup[i].firstName) != 0){
+                    if (studentsInGroup[i].avgGrade < bestAvg) continue;
+                    bestAvg = studentsInGroup[i].avgGrade;
+                    bestStNum = i;
+                }
+            }
+            cout << "\033[2J\033[1;1H";
+            cout << "\nBest student in a group " << groups[selectedGroup-1] << ": " << studentsInGroup[bestStNum].firstName << " " << studentsInGroup[bestStNum].secondName << " | " << bestAvg << "\n" << endl; 
+        }
+    }
+}
+
+void CheckGroups() {
+    for (int i = 0; i < 30; ++i){
+        char studGroup[15] = "";
+        strcpy(studGroup, students[i].group);
+        for(int j = 0; j < 30; ++j){
+            if (strcmp(studGroup, groups[j]) == 0) {
+                break;
+            }
+            else if (strlen(groups[j]) == 0 && strlen(studGroup) != 0){
+                strcpy(groups[j], studGroup);
+                break;
+            }
+        }
+    }
+}
+
+void copyStudent(Student& dest, const Student& src) {
+    strcpy(dest.firstName, src.firstName);
+    strcpy(dest.secondName, src.secondName);
+    dest.avgGrade = (src.grades[0] + src.grades[1] + src.grades[2] + src.grades[3]) / 4.;
+    strcpy(dest.group, src.group);
+}
+
+void filterStudentsByGroup(const Student students[], int studentsCount, Student filteredStudents[], int maxFilteredCount, const char* targetGroup) {
+    int filteredCount = 0;
+
+    for (int i = 0; i < studentsCount; ++i) {
+        if (strcmp(students[i].group, targetGroup) == 0) {
+            if (filteredCount < maxFilteredCount) {
+                copyStudent(filteredStudents[filteredCount], students[i]);
+                ++filteredCount;
+            } else {
+                cout << "Filtered students array capacity exceeded!" << endl;
+                break;
+            }
+        }
+    }
 }
 
 void UserInput(char string[]) {
