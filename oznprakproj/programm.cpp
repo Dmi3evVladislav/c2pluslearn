@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstring>
-#include <string>
+
+#include <locale>
+
 
 const int MAX_LENGTH = 100;
 
@@ -36,6 +38,7 @@ void copyStudent(Student& dest, const Student& src);
 void filterStudentsByGroup(const Student students[], int studentsCount, Student filteredStudents[], int maxFilteredCount, const char* targetGroup);
 
 int main() {
+    // std::locale::global(std::locale(""));
     cout << "\033[2J\033[1;1H";
     cout << "\n\033[1;36mHello!\033[0m\n" << endl;
     programmState = 1;
@@ -81,6 +84,9 @@ void PrintMenu() {
 }
 
 void CreateUser(){
+
+    //TODO: проверки на дату поступления, на вводимые данные и тд и тп
+
     cout << "\033[2J\033[1;1H";
     cout << "\n\033[2mClose app: Ctrl + C\033[0m\n" << endl;
     
@@ -187,6 +193,9 @@ void MenuWork() {
     else if (strcmp(string, "/best") == 0 or strcmp(string, "4") == 0) {
         BestStudent();
     }
+    else {
+        cout << "Command is not found" << endl;
+    }
     
 }
 
@@ -222,7 +231,12 @@ void TablePrintHead() {
     }
     cout << endl;
     for (int i = 0; i < 164; ++i) {
-        cout << "\033[2m-\033[0m";
+        if (i == 5) {
+            wcout << "\033[2m┴\033[0m";
+        }
+        else {
+            cout << "\033[2m-\033[0m";
+        }
     }
     cout << endl;
 }
