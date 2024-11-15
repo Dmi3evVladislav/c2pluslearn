@@ -19,7 +19,7 @@ struct Student
         int joinYear {2024};
         char group[26] = "";
         int grades[4];
-        float avgGrade {0};
+        double avgGrade {0};
 };
 
 Student students[30];
@@ -31,11 +31,14 @@ void PrintMenu();
 void MenuWork();
 void TablePrintHead();
 void UserInput(char string[]);
-void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int grades[4], int number);
+void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int grades[4], int number, double avg);
 void BestStudent();
 void CheckGroups();
 void copyStudent(Student& dest, const Student& src);
 void filterStudentsByGroup(const Student students[], int studentsCount, Student filteredStudents[], int maxFilteredCount, const char* targetGroup);
+void SortMenuWork();
+int getSortMethod(int sortType);
+void sortStudents(Student* students, int n, int sortType, int sortMethod);
 
 int main() {
     // std::locale::global(std::locale(""));
@@ -83,6 +86,17 @@ void PrintMenu() {
     cout << "\033[1m5) /exit\033[0m - Exit programm" << endl;
 }
 
+void PrintSortMenu () {
+    cout << "\n\033[1;36mSort menu:\033[0m\n" << endl;
+    cout << "\033[1m7) /cltab\033[0m - Close all students table" << endl;
+    cout << "\033[1m8) /sbfn\033[0m - Sort students by first name" << endl;
+    cout << "\033[1m9) /sbsn\033[0m - Sort students by second name" << endl;
+    cout << "\033[1m10) /sbtn\033[0m - Sort students by third name" << endl;
+    cout << "\033[1m11) /sbgn\033[0m - Sort students by group name" << endl;
+    cout << "\033[1m12) /sbjy\033[0m - Sort students by join year" << endl;
+    cout << "\033[1m13) /sbgfs\033[0m - Sort students by grades for 4 subjects" << endl;
+}
+
 void CreateUser(){
 
     //TODO: проверки на дату поступления, на вводимые данные и тд и тп
@@ -114,6 +128,7 @@ void CreateUser(){
     char* token = strtok(studGR, " ");
     while (token != nullptr && count < 4) {
         student.grades[count] = atoi(token);
+        student.avgGrade += (atoi(token))/4.;
         count++;
         token = strtok(nullptr, " ");
     }
@@ -121,7 +136,7 @@ void CreateUser(){
     cout << "\nIs data right (\033[1;32my\033[0m/\e[1;31mn\e[0m)?\n" << endl;
 
     TablePrintHead();
-    TablePrintStudent(student.firstName, student.secondName, student.thirdname, student.group, student.joinYear, student.grades, 1);
+    TablePrintStudent(student.firstName, student.secondName, student.thirdname, student.group, student.joinYear, student.grades, 1, student.avgGrade);
 
    //163
 
@@ -141,8 +156,8 @@ void CreateUser(){
             students[studentsNum].grades[1] = student.grades[1];
             students[studentsNum].grades[2] = student.grades[2];
             students[studentsNum].grades[3] = student.grades[3];
+            students[studentsNum].avgGrade = student.avgGrade;
             studentsNum +=1 ;
-            students[studentsNum].avgGrade = (student.grades[0] + student.grades[1] + student.grades[2] + student.grades[3]) / 4. ;
 
             cout << "\n\033[1;32mUser added\033[0m\n" << endl;
             MenuWork();
@@ -161,12 +176,14 @@ void CreateUser(){
 void ShowAllUsers() {
     cout << "\033[2J\033[1;1H";
     cout << endl;
+    
     TablePrintHead();
      for (int i = 0; i < 30; ++i) {
         if (strlen(students[i].firstName) == 0 || strlen(students[i].secondName) == 0 || strlen(students[i].thirdname) == 0  || strlen(students[i].group) == 0) break;
-        TablePrintStudent(students[i].firstName, students[i].secondName, students[i].thirdname, students[i].group, students[i].joinYear, students[i].grades, i+1);
+        TablePrintStudent(students[i].firstName, students[i].secondName, students[i].thirdname, students[i].group, students[i].joinYear, students[i].grades, i+1, students[i].avgGrade);
      }
-     cout << endl;
+    SortMenuWork();
+    cout << endl;
 }
 
 
@@ -197,6 +214,141 @@ void MenuWork() {
         cout << "Command is not found" << endl;
     }
     
+}
+
+void SortMenuWork() {
+    if (render) {
+        PrintSortMenu();
+    char string[MAX_LENGTH] = "";
+    UserInput(string);
+    int sortMethod {0};
+    if (strcmp(string, "/cltab") == 0 or strcmp(string, "7") == 0) {
+        cout << "\033[2J\033[1;1H" << endl;
+        MenuWork();
+    }
+    else if (strcmp(string, "/sbfn") == 0 or strcmp(string, "8") == 0) {
+        sortMethod = getSortMethod(8);
+        sortStudents(students, 30, 8, sortMethod);
+    }
+    else if (strcmp(string, "/sbsn") == 0 or strcmp(string, "9") == 0) {
+        sortMethod = getSortMethod(9);
+        sortStudents(students, 30, 9, sortMethod);
+        // sort students by second name
+    }
+    else if (strcmp(string, "/sbtn") == 0 or strcmp(string, "10") == 0) {
+        sortMethod = getSortMethod(10);
+        sortStudents(students, 30, 10, sortMethod);
+        // sort students by third name
+    }
+    else if (strcmp(string, "/sbgn") == 0 or strcmp(string, "11") == 0) {
+        sortMethod = getSortMethod(11);
+        sortStudents(students, 30, 11, sortMethod);
+        // sort students by group name
+    }
+    else if (strcmp(string, "/sbjy") == 0 or strcmp(string, "12") == 0) {
+        sortMethod = getSortMethod(12);
+        sortStudents(students, 30, 12, sortMethod);
+        // sort students by join year
+    }
+    else if (strcmp(string, "/sbgfs") == 0 or strcmp(string, "13") == 0) {
+        sortMethod = getSortMethod(13);
+        sortStudents(students, 30, 13, sortMethod);
+        // sort students by avg grade
+    }
+    else {
+        cout << "Command is not found" << endl;
+    }
+    ShowAllUsers();
+    }
+    else {
+        cout << "\033[2J\033[1;1H";
+        cout << "\n\033[1;36mBye <3\033[0m\n" << endl;
+    }
+    
+}
+
+void sortStudents(Student* students, int n, int sortType, int sortMethod) {
+    int stNum {0};
+    for(int z = 0; z < n; z++){
+        if(strlen(students[z].firstName) != 0) {
+            stNum += 1;
+        }
+    }
+    bool ascending {false};
+    if (sortMethod == 1 ) {
+        ascending = true;
+    }
+    else {
+        ascending = false;
+    }
+    for (int i = 0; i < stNum - 1; i++) {
+        for (int j = 0; j < stNum - i - 1; j++) {
+            bool swapNeeded = false;
+            switch (sortType) {
+                case 8: // Сортировка по Ф
+                    swapNeeded = ascending ? strcmp(students[j].firstName, students[j + 1].firstName) > 0 : strcmp(students[j].firstName, students[j + 1].firstName) < 0;
+                    break;
+                case 9: // Сортировка по И
+                    swapNeeded = ascending ? strcmp(students[j].secondName, students[j + 1].secondName) > 0 : strcmp(students[j].secondName, students[j + 1].secondName) < 0;
+                    break;
+                case 10: // Сортировка по О
+                    swapNeeded = ascending ? strcmp(students[j].thirdname, students[j + 1].thirdname) > 0 : strcmp(students[j].thirdname, students[j + 1].thirdname) < 0;
+                    break;
+                case 11: // Сортировка по группе
+                    swapNeeded = ascending ? strcmp(students[j].group, students[j + 1].group) > 0 : strcmp(students[j].group, students[j + 1].group) < 0;
+                    break;
+                case 12: // Сортировка по году поступления
+                    swapNeeded = !ascending ? students[j].joinYear > students[j + 1].joinYear : students[j].joinYear < students[j + 1].joinYear;
+                    break;
+                case 13: // Сортировка по среднему баллу
+                    swapNeeded = !ascending ? students[j].avgGrade > students[j + 1].avgGrade : students[j].avgGrade < students[j + 1].avgGrade;
+                    break;
+                default:
+                    cout << "Неизвестный тип сортировки" << endl;
+                    return;
+            }
+            if (swapNeeded) {
+                // Обмен местами двух студентов
+                Student temp = students[j];
+                students[j] = students[j + 1];
+                students[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int getSortMethod(int sortType) {
+    switch (sortType)
+    {
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+        cout << "\033[1mSort from? ('-t' - from top to bottom, '-b' - from bottom to top):\033[0m " ;
+        break;
+    case 12: 
+        cout << "\033[1mSort from? ('-t' - from newer year to older , '-b' - from older year to newer):\033[0m " ;
+        break;
+    case 13:
+        cout << "\033[1mSort from? ('-t' - from the best to bad, '-b' - from bad to the best):\033[0m " ;
+        break;
+    default:
+        break;
+    }
+    char arrg[MAX_LENGTH] = "";
+    UserInput(arrg);
+    if (strcmp(arrg, "-t") == 0) {
+        return 1;
+    }
+    else if (strcmp(arrg, "-b") == 0){
+        return 2;
+    }
+    else {
+        return 1;
+    }
+
+
+
 }
 
 void TablePrintHead() {
@@ -231,17 +383,12 @@ void TablePrintHead() {
     }
     cout << endl;
     for (int i = 0; i < 164; ++i) {
-        if (i == 5) {
-            wcout << "\033[2m┴\033[0m";
-        }
-        else {
-            cout << "\033[2m-\033[0m";
-        }
+        cout << "\033[2m-\033[0m";
     }
     cout << endl;
 }
 
-void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int grades[4], int number) {
+void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int grades[4], int number, double avg) {
     if (number / 10 == 0) {
         cout << " " << number << "  ";
     }
@@ -277,12 +424,13 @@ void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], i
     for (int i = 0; i < 4; ++i) {
         cout << grades[i] << " ";
     }
+    cout << avg;
     cout << endl;
 }
 
 void BestStudent() {
     int bestStNum {0};
-    float bestAvg {0.0};
+    double bestAvg {0.0};
     int acceptGroups {0};
     int selectedGroup {0};
     Student studentsInGroup[30];
