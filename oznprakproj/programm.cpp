@@ -9,6 +9,8 @@ const int MAX_LENGTH = 100;
 using namespace std;
 
 bool render {true};
+bool isAllOpen {false};
+
 int programmState {0};
 
 struct Student
@@ -17,7 +19,11 @@ struct Student
         char secondName[26] = "";
         char thirdname[26] = "";
         int joinYear {2024};
+        int course {1};
         char group[26] = "";
+        int birthdate {1};
+        int birthmounth {1};
+        int birthyear {1924};
         int grades[4];
         double avgGrade {0};
 };
@@ -31,7 +37,7 @@ void PrintMenu();
 void MenuWork();
 void TablePrintHead();
 void UserInput(char string[]);
-void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int grades[4], int number, double avg);
+void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int course, int grades[4], int number, double avg, int birthdate, int birthmounth, int birthyear);
 void BestStudent();
 void CheckGroups();
 void copyStudent(Student& dest, const Student& src);
@@ -39,6 +45,16 @@ void filterStudentsByGroup(const Student students[], int studentsCount, Student 
 void SortMenuWork();
 int getSortMethod(int sortType);
 void sortStudents(Student* students, int n, int sortType, int sortMethod);
+int getStudentBDate(char fullBirth[]);
+int getStudentBMounth(char fullBirth[]);
+int getStudentBYear(char fullBirth[]);
+void dateOutput (int bDay, int bMounth, int bYear);
+void PrintMounthSelect();
+void BornInMounth();
+void bubbleSortByDate(Student students[], int size);
+void MounthSort(int month, Student students[], int size);
+void EditStudent();
+void DeleteStudent();
 
 int main() {
     // std::locale::global(std::locale(""));
@@ -82,8 +98,9 @@ void PrintMenu() {
     cout << "\033[1m1) /add\033[0m - Add new student" << endl;
     cout << "\033[1m2) /edit\033[0m - Edit student entry" << endl;
     cout << "\033[1m3) /delete\033[0m - Delete student entry" << endl;
-    cout << "\033[1m4) /best\033[0m - Show first and second student name with best avg. grade" << endl;
-    cout << "\033[1m5) /exit\033[0m - Exit programm" << endl;
+    cout << "\033[1m4) /best\033[0m - Show student's name and surname with best avg. grade" << endl;
+    cout << "\033[1m5) /binm\033[0m - Show student's name, surname and group born in select mounth" << endl;
+    cout << "\033[1m6) /exit\033[0m - Exit programm" << endl;
 }
 
 void PrintSortMenu () {
@@ -95,6 +112,24 @@ void PrintSortMenu () {
     cout << "\033[1m11) /sbgn\033[0m - Sort students by group name" << endl;
     cout << "\033[1m12) /sbjy\033[0m - Sort students by join year" << endl;
     cout << "\033[1m13) /sbgfs\033[0m - Sort students by grades for 4 subjects" << endl;
+    cout << "\033[1m14) /sbbd\033[0m - Sort students by birth date" << endl;
+    cout << "\033[1m15) /sbc\033[0m - Sort students by course" << endl;
+}
+
+void PrintMounthSelect() {
+    cout << "\e[1;31mSelect mounth: \e[0m" << endl;
+    cout << "\033[1m1) January\033[0m" << endl;
+    cout << "\033[1m2) February\033[0m" << endl;
+    cout << "\033[1m3) March\033[0m" << endl;
+    cout << "\033[1m4) April\033[0m" << endl;
+    cout << "\033[1m5) May\033[0m" << endl;
+    cout << "\033[1m6) June\033[0m" << endl;
+    cout << "\033[1m7) July\033[0m" << endl;
+    cout << "\033[1m8) August\033[0m" << endl;
+    cout << "\033[1m9) September\033[0m" << endl;
+    cout << "\033[1m10) October\033[0m" << endl;
+    cout << "\033[1m11) November\033[0m" << endl;
+    cout << "\033[1m12) December\033[0m" << endl;
 }
 
 void CreateUser(){
@@ -105,6 +140,8 @@ void CreateUser(){
     cout << "\n\033[2mClose app: Ctrl + C\033[0m\n" << endl;
     
     Student student;
+
+    char birthFullDate[MAX_LENGTH] = "";
 
     cout << "\033[1mFirst Name:\033[0m ";
     UserInput(student.firstName);
@@ -120,7 +157,27 @@ void CreateUser(){
     
     cout << "\033[1mJoin Year:\033[0m ";
     cin >> student.joinYear;
-    
+
+    cout << "\033[1mCourse:\033[0m ";
+    cin >> student.course;
+
+    cout << "\033[1mBirth (in format DD.MM.YYYY):\033[0m ";
+
+    bool isCorrectData = false;
+
+    while(!isCorrectData) {
+        UserInput(birthFullDate);
+        if (strlen(birthFullDate) != 10) {
+            cout << "Incorect date format, please, write in DD.MM.YYYY format" << endl;
+            continue;
+        }
+        if((getStudentBDate(birthFullDate) == - 1) || (getStudentBMounth(birthFullDate) == - 1) || (getStudentBYear(birthFullDate) == - 1)) continue;
+        student.birthdate = getStudentBDate(birthFullDate);
+        student.birthmounth = getStudentBMounth(birthFullDate);
+        student.birthyear = getStudentBYear(birthFullDate);
+        isCorrectData = true;
+    }
+
     cout << "\033[1mGrades for 4 subjects (separated by a space):\033[0m ";
     char studGR[20] = "";
     UserInput(studGR);
@@ -132,11 +189,14 @@ void CreateUser(){
         count++;
         token = strtok(nullptr, " ");
     }
+
+
+
     cout << "\033[2J\033[1;1H";
     cout << "\nIs data right (\033[1;32my\033[0m/\e[1;31mn\e[0m)?\n" << endl;
 
     TablePrintHead();
-    TablePrintStudent(student.firstName, student.secondName, student.thirdname, student.group, student.joinYear, student.grades, 1, student.avgGrade);
+    TablePrintStudent(student.firstName, student.secondName, student.thirdname, student.group, student.joinYear, student.course, student.grades, 1, student.avgGrade, student.birthdate, student.birthmounth, student.birthyear);
 
    //163
 
@@ -152,6 +212,10 @@ void CreateUser(){
             strcpy(students[studentsNum].thirdname, student.thirdname);
             strcpy(students[studentsNum].group, student.group);
             students[studentsNum].joinYear = student.joinYear;
+            students[studentsNum].course = student.course;
+            students[studentsNum].birthdate = student.birthdate;
+            students[studentsNum].birthmounth = student.birthmounth;
+            students[studentsNum].birthyear = student.birthyear;
             students[studentsNum].grades[0] = student.grades[0]; // Скорее всего не то
             students[studentsNum].grades[1] = student.grades[1];
             students[studentsNum].grades[2] = student.grades[2];
@@ -173,42 +237,306 @@ void CreateUser(){
     
 }
 
-void ShowAllUsers() {
+void EditStudent() {
     cout << "\033[2J\033[1;1H";
     cout << endl;
+
+    int numberUserInp {0};
+    int studentIndex {0};
+    if (strlen(students[0].firstName) == 0 || strlen(students[0].secondName) == 0 || strlen(students[0].thirdname) == 0  || strlen(students[0].group) == 0){
+        cout << "Student's table is empty\n" << endl;
+        MenuWork();
+        return;
+    }
+
+    TablePrintHead();
+    for (int i = 0; i < 30; ++i) {
+        if (strlen(students[i].firstName) == 0 || strlen(students[i].secondName) == 0 || strlen(students[i].thirdname) == 0  || strlen(students[i].group) == 0) break;
+        TablePrintStudent(students[i].firstName, students[i].secondName, students[i].thirdname, students[i].group, students[i].joinYear, students[i].course, students[i].grades, i+1, students[i].avgGrade, students[i].birthdate, students[i].birthmounth, students[i].birthyear);
+    }
+    cout << "Select number of student to edit: ";
+    cin >> numberUserInp;
+    cin.ignore();
+    cout << endl;
+
+    if(numberUserInp <= 0 || numberUserInp > 30) {
+        cout << "Incorect student number" << endl;
+        MenuWork();
+        return;
+    }
+    else studentIndex = numberUserInp - 1;
+
+    Student& student = students[studentIndex];
+
+    char temp[MAX_LENGTH];
+
+    cout << endl;
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[2mEdit value and press Enter, to save new value (press Enter to skip value)\033[0m\n" << endl;
+    cout << "First name: " << endl;
+    cout << "Old value: " << student.firstName << endl;
+    cout << "New value: ";
+    cin.getline(temp, MAX_LENGTH);
+    if (strlen(temp) > 0) {
+        strncpy(student.firstName, temp, 25);
+        student.firstName[25] = '\0';
+    }
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[2mEdit value and press Enter, to save new value (press Enter to skip value)\033[0m\n" << endl;
+    cout << "Second name: " << endl;
+    cout << "Old value: " << student.secondName << endl;
+    cout << "New value: ";
+    cin.getline(temp, MAX_LENGTH);
+    if (strlen(temp) > 0) {
+        strncpy(student.secondName, temp, 25);
+        student.secondName[25] = '\0';
+    }
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[2mEdit value and press Enter, to save new value (press Enter to skip value)\033[0m\n" << endl;
+    cout << "Third name: " << endl;
+    cout << "Old value: " << student.thirdname << endl;
+    cout << "New value: ";
+    cin.getline(temp, MAX_LENGTH);
+    if (strlen(temp) > 0) {
+        strncpy(student.thirdname, temp, 25);
+        student.thirdname[25] = '\0';
+    }
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[2mEdit value and press Enter, to save new value (press Enter to skip value)\033[0m\n" << endl;
+    cout << "Birth date: " << endl;
+    cout << "Old value: ";
+    dateOutput (student.birthdate, student.birthmounth, student.birthyear); 
+    cout << endl;
+    cout << "New value (DD.MM.YYYY format): ";
+
+    bool isCorrectData = false;
+    while(!isCorrectData) {
+        cin.getline(temp, MAX_LENGTH);
+        if (strlen(temp) > 0) {
+            if (strlen(temp) != 10) {
+                cout << "Incorect date format, please, write in DD.MM.YYYY format" << endl;
+                continue;
+            }
+            if((getStudentBDate(temp) == - 1) || (getStudentBMounth(temp) == - 1) || (getStudentBYear(temp) == - 1)) continue;
+            student.birthdate = getStudentBDate(temp);
+            student.birthmounth = getStudentBMounth(temp);
+            student.birthyear = getStudentBYear(temp);
+            isCorrectData = true;
+        }
+        else isCorrectData = true;
+    }
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[2mEdit value and press Enter, to save new value (press Enter to skip value)\033[0m\n" << endl;
+    cout << "Group: " << endl;
+    cout << "Old value: " << student.group << endl;
+    cout << "New value: ";
+    cin.getline(temp, MAX_LENGTH);
+    if (strlen(temp) > 0) {
+        strncpy(student.group, temp, 25);
+        student.group[25] = '\0';
+    }
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[2mEdit value and press Enter, to save new value (press Enter to skip value)\033[0m\n" << endl;
+    cout << "Join year: " << endl;
+    cout << "Old value: " << student.joinYear << endl;
+    cout << "New value: ";
+    cin.getline(temp, MAX_LENGTH);
+    if (strlen(temp) > 0) {
+        student.joinYear = atoi(temp);
+    }
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[2mEdit value and press Enter, to save new value (press Enter to skip value)\033[0m\n" << endl;
+    cout << "Course: " << endl;
+    cout << "Old value: " << student.course << endl;
+    cout << "New value: ";
+    cin.getline(temp, MAX_LENGTH);
+    if (strlen(temp) > 0) {
+        student.course = atoi(temp);
+    }
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[2mEdit value and press Enter, to save new value (press Enter to skip value)\033[0m\n" << endl;
+    cout << "Grades for 4 subj: " << endl;
+    cout << "Old value: ";
+    for (int i = 0; i < 4; ++i) {
+        cout << student.grades[i] << " ";
+    }
+    cout << endl;
+    cout << "New value (with spase): ";
+    cin.getline(temp, MAX_LENGTH);
+    if (strlen(temp) > 0) {
+        char* token = strtok(temp, " ");
+        int count = 0;
+        while (token != nullptr && count < 4) {
+            int grade = atoi(token);
+            if (grade >= 2 && grade <= 5) {
+                student.grades[count] = grade;
+                ++count;
+            } else {
+                cout << "Incorect grade. Grade must be from 2 to 5." << endl;
+                break;
+            }
+            token = strtok(nullptr, " ");
+        }
+    }
+
+    int sum = 0;
+    for (int i = 0; i < 4; ++i) {
+        sum += student.grades[i];
+    }
+    student.avgGrade = static_cast<double>(sum) / 4;
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[1;32mStudent edited\033[0m\n" << endl;
+    MenuWork();
+    return;
+
+}
+
+void DeleteStudent() {
+    cout << "\033[2J\033[1;1H";
+    cout << endl;
+
+    int numberUserInp {0};
+    int studentIndex {0};
+    if (strlen(students[0].firstName) == 0 || strlen(students[0].secondName) == 0 || strlen(students[0].thirdname) == 0  || strlen(students[0].group) == 0){
+        cout << "Student's table is empty\n" << endl;
+        MenuWork();
+        return;
+    }
+
+    TablePrintHead();
+    for (int i = 0; i < 30; ++i) {
+        if (strlen(students[i].firstName) == 0 || strlen(students[i].secondName) == 0 || strlen(students[i].thirdname) == 0  || strlen(students[i].group) == 0) break;
+        TablePrintStudent(students[i].firstName, students[i].secondName, students[i].thirdname, students[i].group, students[i].joinYear, students[i].course, students[i].grades, i+1, students[i].avgGrade, students[i].birthdate, students[i].birthmounth, students[i].birthyear);
+    }
+    cout << "Select number of student to edit: ";
+    cin >> numberUserInp;
+    cin.ignore();
+    cout << endl;
+
+    if(numberUserInp <= 0 || numberUserInp > 30) {
+        cout << "Incorect student number" << endl;
+        MenuWork();
+        return;
+    }
+    else studentIndex = numberUserInp - 1;
+
+    if (strlen(students[studentIndex].firstName) == 0) {
+        cout << "Student with this number dsnt exist" << endl;
+        MenuWork();
+        return;
+    }
+
+    for (int i = studentIndex; i < 29; ++i) {
+        students[i] = students[i + 1];
+    }
+
+    memset(&students[29], 0, sizeof(Student));
+
+    cout << "\033[2J\033[1;1H";
+    cout << "\n\033[1;32mStudent deleted\033[0m\n" << endl;
+    MenuWork();
+}
+
+void ShowAllUsers() {
+    if(isAllOpen){
+        cout << "\033[2J\033[1;1H";
+    cout << endl;
+
+    if (strlen(students[0].firstName) == 0 || strlen(students[0].secondName) == 0 || strlen(students[0].thirdname) == 0  || strlen(students[0].group) == 0){
+        cout << "Student's table is empty\n" << endl;
+        MenuWork();
+        return;
+    }
     
     TablePrintHead();
      for (int i = 0; i < 30; ++i) {
         if (strlen(students[i].firstName) == 0 || strlen(students[i].secondName) == 0 || strlen(students[i].thirdname) == 0  || strlen(students[i].group) == 0) break;
-        TablePrintStudent(students[i].firstName, students[i].secondName, students[i].thirdname, students[i].group, students[i].joinYear, students[i].grades, i+1, students[i].avgGrade);
+        TablePrintStudent(students[i].firstName, students[i].secondName, students[i].thirdname, students[i].group, students[i].joinYear, students[i].course, students[i].grades, i+1, students[i].avgGrade, students[i].birthdate, students[i].birthmounth, students[i].birthyear);
      }
     SortMenuWork();
     cout << endl;
+    isAllOpen = false;
+    return;
+    }
 }
 
+int getStudentBDate(char fullBirth[]) {
+    char bDay[3] = "";
+    strncpy(bDay, fullBirth, 2);
+    int day = atoi(bDay);
+    if (day < 1 || day > 31){
+        cout << "Incorect date (less then 1 or more then 31 )" << endl;
+        return -1;
+    }
+    return day;
+}
 
+int getStudentBMounth(char fullBirth[]) {
+    char bMounth[3] = "";
+    strncpy(bMounth, fullBirth + 3, 2);
+    int mounth = atoi(bMounth);
+    if (mounth < 1 || mounth > 12){
+        cout << "Incorect mounth (less then 1 or more then 12 )" << endl;
+        return -1;
+    }
+    return mounth;
+}
+
+int getStudentBYear(char fullBirth[]) {
+    char bYear[5] = "";
+    strncpy(bYear, fullBirth + 6, 4);
+    int year = atoi(bYear);
+    if (year > 2020) {
+        cout << "Incorect year, student is too young to study in bmstu" << endl;
+        return -1;
+    }
+    return year;
+}
+
+void dateOutput (int bDay, int bMounth, int bYear) {
+    if(bDay < 10) cout << "0" << bDay;
+    else cout << bDay;
+    cout << ".";
+    if(bMounth < 10) cout << "0" << bMounth;
+    else cout << bMounth;
+    cout << ".";
+    cout << bYear;
+}
 
 void MenuWork() {
     PrintMenu();
     char string[MAX_LENGTH] = "";
     UserInput(string);
-    if (strcmp(string, "/exit") == 0 or strcmp(string, "5") == 0) {
+    if (strcmp(string, "/exit") == 0 or strcmp(string, "6") == 0) {
         CloseProgramm();
     }
     else if (strcmp(string, "/showall") == 0 or strcmp(string, "0") == 0) {
+        isAllOpen = true;
         ShowAllUsers();
     }
     else if (strcmp(string, "/add") == 0 or strcmp(string, "1") == 0) {
         CreateUser();
     }
     else if (strcmp(string, "/edit") == 0 or strcmp(string, "2") == 0) {
-        cout << "In dev" << endl;
+        EditStudent();
     }
     else if (strcmp(string, "/delete") == 0 or strcmp(string, "3") == 0) {
-        cout << "In dev" << endl;
+        DeleteStudent();
     }
     else if (strcmp(string, "/best") == 0 or strcmp(string, "4") == 0) {
         BestStudent();
+    }
+    else if (strcmp(string, "/binm") == 0 or strcmp(string, "5") == 0) {
+        BornInMounth();
     }
     else {
         cout << "Command is not found" << endl;
@@ -224,6 +552,7 @@ void SortMenuWork() {
     int sortMethod {0};
     if (strcmp(string, "/cltab") == 0 or strcmp(string, "7") == 0) {
         cout << "\033[2J\033[1;1H" << endl;
+        isAllOpen = false;
         MenuWork();
     }
     else if (strcmp(string, "/sbfn") == 0 or strcmp(string, "8") == 0) {
@@ -255,6 +584,16 @@ void SortMenuWork() {
         sortStudents(students, 30, 13, sortMethod);
         // sort students by avg grade
     }
+    else if (strcmp(string, "/sbbd") == 0 or strcmp(string, "14") == 0) {
+        sortMethod = getSortMethod(14);
+        sortStudents(students, 30, 14, sortMethod);
+        // sort students by birth date
+    }
+    else if (strcmp(string, "/sbc") == 0 or strcmp(string, "15") == 0) {
+        sortMethod = getSortMethod(15);
+        sortStudents(students, 30, 15, sortMethod);
+        // sort students by course
+    }
     else {
         cout << "Command is not found" << endl;
     }
@@ -264,7 +603,7 @@ void SortMenuWork() {
         cout << "\033[2J\033[1;1H";
         cout << "\n\033[1;36mBye <3\033[0m\n" << endl;
     }
-    
+    return;
 }
 
 void sortStudents(Student* students, int n, int sortType, int sortMethod) {
@@ -303,6 +642,18 @@ void sortStudents(Student* students, int n, int sortType, int sortMethod) {
                 case 13: // Сортировка по среднему баллу
                     swapNeeded = !ascending ? students[j].avgGrade > students[j + 1].avgGrade : students[j].avgGrade < students[j + 1].avgGrade;
                     break;
+                case 14: // Сортировка по дате рождения
+                    swapNeeded = !ascending ? 
+                        (students[j].birthyear > students[j + 1].birthyear || 
+                        (students[j].birthyear == students[j + 1].birthyear && students[j].birthmounth > students[j + 1].birthmounth) || 
+                        (students[j].birthyear == students[j + 1].birthyear && students[j].birthmounth == students[j + 1].birthmounth && students[j].birthdate > students[j + 1].birthdate)) :
+                        (students[j].birthyear < students[j + 1].birthyear || 
+                        (students[j].birthyear == students[j + 1].birthyear && students[j].birthmounth < students[j + 1].birthmounth) || 
+                        (students[j].birthyear == students[j + 1].birthyear && students[j].birthmounth == students[j + 1].birthmounth && students[j].birthdate < students[j + 1].birthdate));
+                        break;
+                case 15: // Сортировка по курсу
+                    swapNeeded = !ascending ? students[j].course > students[j + 1].course : students[j].course < students[j + 1].course;
+                    break;
                 default:
                     cout << "Неизвестный тип сортировки" << endl;
                     return;
@@ -324,6 +675,7 @@ int getSortMethod(int sortType) {
     case 9:
     case 10:
     case 11:
+    case 15:
         cout << "\033[1mSort from? ('-t' - from top to bottom, '-b' - from bottom to top):\033[0m " ;
         break;
     case 12: 
@@ -331,6 +683,9 @@ int getSortMethod(int sortType) {
         break;
     case 13:
         cout << "\033[1mSort from? ('-t' - from the best to bad, '-b' - from bad to the best):\033[0m " ;
+        break;
+    case 14:
+        cout << "\033[1mSort from? ('-t' - from younger to older, '-b' - from older to younger):\033[0m " ;
         break;
     default:
         break;
@@ -352,7 +707,7 @@ int getSortMethod(int sortType) {
 }
 
 void TablePrintHead() {
-    for (int i = 0; i < 164; ++i) {
+    for (int i = 0; i < 197; ++i) {
         cout << "\033[2m-\033[0m";
     }
     cout << endl;
@@ -360,14 +715,25 @@ void TablePrintHead() {
     for (int i = 0; i < 16; ++i) {
         cout << " ";
     }
+
     cout << "\033[2m|\033[0m Second Name";
     for (int i = 0; i < 15; ++i) {
         cout << " ";
     }
+
     cout << "\033[2m|\033[0m Third Name";
     for (int i = 0; i < 16; ++i) {
         cout << " ";
     }
+    cout << "\033[2m|\033[0m";
+    for (int i = 0; i < 5; ++i) {
+        cout << " ";
+    }
+    cout << "Birth Date";
+    for (int i = 0; i < 5; ++i) {
+        cout << " ";
+    }
+
     cout << "\033[2m|\033[0m Group Name";
     for (int i = 0; i < 16; ++i) {
         cout << " ";
@@ -377,18 +743,23 @@ void TablePrintHead() {
         cout << " ";
     }
     cout << "Join Year ";
+    cout << "\033[2m|\033[0m";
+    for (int i = 0; i < 5; ++i) {
+        cout << " ";
+    }
+    cout << "Course ";
     cout << "\033[2m|\033[0m Grades for 4 subj";
     for (int i = 0; i < 9; ++i) {
         cout << " ";
     }
     cout << endl;
-    for (int i = 0; i < 164; ++i) {
+    for (int i = 0; i < 197; ++i) {
         cout << "\033[2m-\033[0m";
     }
     cout << endl;
 }
 
-void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int grades[4], int number, double avg) {
+void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int course, int grades[4], int number, double avg, int birthdate, int birthmounth, int birthyear) {
     if (number / 10 == 0) {
         cout << " " << number << "  ";
     }
@@ -408,6 +779,15 @@ void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], i
     for (int i = 0; i < 26-strlen(tname); ++i) {
         cout << " ";
     }
+    cout << "\033[2m|\033[0m";
+    for (int i = 0; i < 5; ++i) {
+        cout << " ";
+    }
+    dateOutput(birthdate, birthmounth, birthyear);
+    for (int i = 0; i < 5; ++i) {
+        cout << " ";
+    }
+
     cout << "\033[2m|\033[0m " << gname;
     for (int i = 0; i < 26-strlen(gname); ++i) {
         cout << " ";
@@ -418,13 +798,17 @@ void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], i
     }
     cout << jyear << " ";
     cout << "\033[2m|\033[0m";
+    for (int i = 0; i < 10; ++i) {
+        cout << " ";
+    }
+    cout << course << " ";
+    cout << "\033[2m|\033[0m";
 
     //19-7
     cout << "      "; //6
     for (int i = 0; i < 4; ++i) {
         cout << grades[i] << " ";
     }
-    cout << avg;
     cout << endl;
 }
 
@@ -441,12 +825,12 @@ void BestStudent() {
     }
     if (bestAvg == 0.0) {
         cout << "\033[2J\033[1;1H";
-        cout << "Student's table is empty" << endl;
+        cout << "\nStudent's table is empty\n" << endl;
     }
     else {
         cout << "\033[2J\033[1;1H";
         cout << "Best student in table: ";
-        cout << "\n" << students[bestStNum-1].firstName << " " << students[bestStNum-1].secondName << " | " << bestAvg << "\n" <<  endl;
+        cout << "\n" << students[bestStNum].firstName << " " << students[bestStNum].secondName << " | " << bestAvg << "\n" <<  endl;
         cout << "Select group:" << endl;
         CheckGroups();
         for (int i = 0; i < 30; ++i) {
@@ -475,6 +859,135 @@ void BestStudent() {
             cout << "\nBest student in a group " << groups[selectedGroup-1] << ": " << studentsInGroup[bestStNum].firstName << " " << studentsInGroup[bestStNum].secondName << " | " << bestAvg << "\n" << endl; 
         }
     }
+}
+
+void BornInMounth() {
+    cout << "\033[2J\033[1;1H";
+
+    if (strlen(students[0].firstName) == 0 || strlen(students[0].secondName) == 0 || strlen(students[0].thirdname) == 0  || strlen(students[0].group) == 0){
+        cout << "\nStudent's table is empty\n" << endl;
+        MenuWork();
+        return;
+    }
+
+    PrintMounthSelect();
+    char string[MAX_LENGTH] = "";
+    UserInput(string);
+    if (strcmp(string, "January") == 0 or strcmp(string, "1") == 0) {
+        MounthSort(1, students, 30);
+    }
+    else if (strcmp(string, "February") == 0 or strcmp(string, "2") == 0) {
+        MounthSort(2, students, 30);
+    }
+    else if (strcmp(string, "March") == 0 or strcmp(string, "3") == 0) {
+        MounthSort(3, students, 30);
+    }
+    else if (strcmp(string, "April") == 0 or strcmp(string, "4") == 0) {
+        MounthSort(4, students, 30);
+    }
+    else if (strcmp(string, "May") == 0 or strcmp(string, "5") == 0) {
+        MounthSort(5, students, 30);
+    }
+    else if (strcmp(string, "June") == 0 or strcmp(string, "6") == 0) {
+        MounthSort(6, students, 30);
+    }
+    else if (strcmp(string, "July") == 0 or strcmp(string, "7") == 0) {
+        MounthSort(7, students, 30);
+    }
+    else if (strcmp(string, "August") == 0 or strcmp(string, "8") == 0) {
+        MounthSort(8, students, 30);
+    }
+    else if (strcmp(string, "September") == 0 or strcmp(string, "9") == 0) {
+        MounthSort(9, students, 30);
+    }
+    else if (strcmp(string, "October") == 0 or strcmp(string, "10") == 0) {
+        MounthSort(10, students, 30);
+    }
+    else if (strcmp(string, "November") == 0 or strcmp(string, "11") == 0) {
+        MounthSort(11, students, 30);
+    }
+    else if (strcmp(string, "December") == 0 or strcmp(string, "12") == 0) {
+        MounthSort(12, students, 30);
+    }
+    else cout << "Incorect mounth" << endl;
+}
+
+void bubbleSortByDate(Student students[], int size) {
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (students[j].birthdate > students[j + 1].birthdate) {
+                Student temp = students[j];
+                students[j] = students[j + 1];
+                students[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void MounthSort(int month, Student students[], int size) {
+    Student filteredStudents[30];
+    int filteredSize = 0; 
+    for (int i = 0; i < size; ++i) {
+        if (students[i].birthmounth == month) {
+            filteredStudents[filteredSize++] = students[i];
+        }
+    }
+    bubbleSortByDate(filteredStudents, filteredSize);
+    cout << "\033[2J\033[1;1H";
+    cout << endl;
+    for (int i = 0; i < 95; ++i) {
+        cout << "\033[2m-\033[0m";
+    }
+    cout << endl;
+    cout << "\033[2m|\033[0m First name";
+    for (int i = 0; i < 16; ++i) {
+            cout << " ";
+        }
+    cout << "\033[2m|\033[0m Second name";
+    for (int i = 0; i < 15; ++i) {
+            cout << " ";
+        }
+    cout << "\033[2m|\033[0m Group";
+    for (int i = 0; i < 10; ++i) {
+            cout << " ";
+        }
+    cout << "\033[2m|\033[0m     Birth date     \033[2m|\033[0m";
+    cout << endl;
+    for (int i = 0; i < 95; ++i) {
+        cout << "\033[2m-\033[0m";
+    }
+    cout << endl;
+
+    for (int i = 0; i < filteredSize; ++i) {
+        int len_name = 26-strlen(filteredStudents[i].firstName);
+        int len_sname = 26-strlen(filteredStudents[i].secondName);
+        int len_gr = 15-strlen(filteredStudents[i].group);
+        // cout << len_name << " " << len_sname << " " << len_gr << endl;
+        if(len_name == 26 || len_sname == 26 || len_gr == 15){
+           break;
+        }
+
+        cout << "\033[2m|\033[0m " << filteredStudents[i].firstName;
+        for (int i = 0; i < len_name; ++i) {
+            cout << " ";
+        }
+        cout << "\033[2m|\033[0m " << filteredStudents[i].secondName;
+        for (int i = 0; i < len_sname; ++i) {
+            cout << " ";
+        }
+        cout << "\033[2m|\033[0m " << filteredStudents[i].group;
+        for (int i = 0; i < len_gr; ++i) {
+            cout << " ";
+        }
+        cout << "\033[2m|\033[0m     ";
+        dateOutput(filteredStudents[i].birthdate, filteredStudents[i].birthmounth, filteredStudents[i].birthyear);
+        cout << "     \033[2m|\033[0m" << endl;
+
+    }
+    for (int i = 0; i < 95; ++i) {
+        cout << "\033[2m-\033[0m";
+    }
+    cout << "\n" << endl;
 }
 
 void CheckGroups() {
