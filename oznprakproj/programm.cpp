@@ -15,12 +15,12 @@ int programmState {0};
 
 struct Student
     {
-        char firstName[26] = "";
-        char secondName[26] = "";
-        char thirdname[26] = "";
+        char firstName[MAX_LENGTH] = "";
+        char secondName[MAX_LENGTH] = "";
+        char thirdname[MAX_LENGTH] = "";
         int joinYear {2024};
         int course {1};
-        char group[26] = "";
+        char group[MAX_LENGTH] = "";
         int birthdate {1};
         int birthmounth {1};
         int birthyear {1924};
@@ -30,7 +30,7 @@ struct Student
 
 Student students[30];
 int studentsNum {0};
-char groups[30][15] {""};
+char groups[30][MAX_LENGTH] {""};
 
 void CloseProgramm();
 void PrintMenu();
@@ -801,6 +801,11 @@ void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], i
     }
 
     cout << "\033[2m|\033[0m " << fname;
+    char nameBig[5][MAX_LENGTH] = {""};
+    if (utf8_length(fname) > 26){
+
+    }
+
     for (int i = 0; i < 26-utf8_length(fname); ++i) {
         cout << " ";
     }
