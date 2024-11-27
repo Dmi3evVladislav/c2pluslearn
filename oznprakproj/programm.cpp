@@ -56,8 +56,28 @@ void MounthSort(int month, Student students[], int size);
 void EditStudent();
 void DeleteStudent();
 
+
+size_t utf8_length(const char* str) {
+    size_t length = 0;
+    for (size_t i = 0; str[i] != '\0';) {
+        if ((str[i] & 0x80) == 0) {
+            i += 1;
+        } else if ((str[i] & 0xE0) == 0xC0) {
+            i += 2;
+        } else if ((str[i] & 0xF0) == 0xE0) {
+            i += 3;
+        } else if ((str[i] & 0xF8) == 0xF0) {
+            i += 4;
+        } else {
+            i += 1;
+        }
+        length++;
+    }
+    return length;
+}
+
 int main() {
-    // std::locale::global(std::locale(""));
+    // setlocale(LC_ALL, "ru_RU.UTF-8");
     cout << "\033[2J\033[1;1H";
     cout << "\n\033[1;36mHello!\033[0m\n" << endl;
     programmState = 1;
@@ -83,8 +103,6 @@ int main() {
 
     return 0;
 }
-
-
 
 void CloseProgramm () {
     cout << "\033[2J\033[1;1H";
@@ -760,6 +778,8 @@ void TablePrintHead() {
 }
 
 void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], int jyear, int course, int grades[4], int number, double avg, int birthdate, int birthmounth, int birthyear) {
+
+
     if (number / 10 == 0) {
         cout << " " << number << "  ";
     }
@@ -768,15 +788,15 @@ void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], i
     }
 
     cout << "\033[2m|\033[0m " << fname;
-    for (int i = 0; i < 26-strlen(fname); ++i) {
+    for (int i = 0; i < 26-utf8_length(fname); ++i) {
         cout << " ";
     }
     cout << "\033[2m|\033[0m " << sname;
-    for (int i = 0; i < 26-strlen(sname); ++i) {
+    for (int i = 0; i < 26-utf8_length(sname); ++i) {
         cout << " ";
     }
     cout << "\033[2m|\033[0m " << tname;
-    for (int i = 0; i < 26-strlen(tname); ++i) {
+    for (int i = 0; i < 26-utf8_length(tname); ++i) {
         cout << " ";
     }
     cout << "\033[2m|\033[0m";
@@ -789,7 +809,7 @@ void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], i
     }
 
     cout << "\033[2m|\033[0m " << gname;
-    for (int i = 0; i < 26-strlen(gname); ++i) {
+    for (int i = 0; i < 26-utf8_length(gname); ++i) {
         cout << " ";
     }
     cout << "\033[2m|\033[0m";
