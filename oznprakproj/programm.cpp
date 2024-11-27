@@ -57,7 +57,8 @@ void EditStudent();
 void DeleteStudent();
 
 
-size_t utf8_length(const char* str) {
+size_t utf8_length(const char* str) { // Определение длины, для винды и linux
+    #ifdef __linux__
     size_t length = 0;
     for (size_t i = 0; str[i] != '\0';) {
         if ((str[i] & 0x80) == 0) {
@@ -74,7 +75,12 @@ size_t utf8_length(const char* str) {
         length++;
     }
     return length;
+    #elif defined(_WIN32)
+    return strlen(str);
+    #endif
 }
+
+
 
 int main() {
     // setlocale(LC_ALL, "ru_RU.UTF-8");
