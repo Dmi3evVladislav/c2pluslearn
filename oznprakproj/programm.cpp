@@ -985,9 +985,9 @@ void MounthSort(int month, Student students[], int size) {
     cout << endl;
 
     for (int i = 0; i < filteredSize; ++i) {
-        int len_name = 26-strlen(filteredStudents[i].firstName);
-        int len_sname = 26-strlen(filteredStudents[i].secondName);
-        int len_gr = 15-strlen(filteredStudents[i].group);
+        int len_name = 26-utf8_length(filteredStudents[i].firstName);
+        int len_sname = 26-utf8_length(filteredStudents[i].secondName);
+        int len_gr = 15-utf8_length(filteredStudents[i].group);
         // cout << len_name << " " << len_sname << " " << len_gr << endl;
         if(len_name == 26 || len_sname == 26 || len_gr == 15){
            break;
