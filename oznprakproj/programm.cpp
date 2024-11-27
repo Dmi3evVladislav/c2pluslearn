@@ -278,17 +278,24 @@ void EditStudent() {
         if (strlen(students[i].firstName) == 0 || strlen(students[i].secondName) == 0 || strlen(students[i].thirdname) == 0  || strlen(students[i].group) == 0) break;
         TablePrintStudent(students[i].firstName, students[i].secondName, students[i].thirdname, students[i].group, students[i].joinYear, students[i].course, students[i].grades, i+1, students[i].avgGrade, students[i].birthdate, students[i].birthmounth, students[i].birthyear);
     }
-    cout << "Select number of student to edit: ";
+    cout << "\nSelect number of student to edit: ";
     cin >> numberUserInp;
     cin.ignore();
     cout << endl;
 
     if(numberUserInp <= 0 || numberUserInp > 30) {
-        cout << "Incorect student number" << endl;
+        cout << "Incorect student number\n" << endl;
         MenuWork();
         return;
     }
+
     else studentIndex = numberUserInp - 1;
+
+    if (strlen(students[studentIndex].firstName) == 0) {
+        cout << "Student with this number dsnt exist\n" << endl;
+        MenuWork();
+        return;
+    }
 
     Student& student = students[studentIndex];
 
@@ -441,20 +448,20 @@ void DeleteStudent() {
         if (strlen(students[i].firstName) == 0 || strlen(students[i].secondName) == 0 || strlen(students[i].thirdname) == 0  || strlen(students[i].group) == 0) break;
         TablePrintStudent(students[i].firstName, students[i].secondName, students[i].thirdname, students[i].group, students[i].joinYear, students[i].course, students[i].grades, i+1, students[i].avgGrade, students[i].birthdate, students[i].birthmounth, students[i].birthyear);
     }
-    cout << "Select number of student to edit: ";
+    cout << "\nSelect number of student to edit: ";
     cin >> numberUserInp;
     cin.ignore();
     cout << endl;
 
     if(numberUserInp <= 0 || numberUserInp > 30) {
-        cout << "Incorect student number" << endl;
+        cout << "Incorect student number\n" << endl;
         MenuWork();
         return;
     }
     else studentIndex = numberUserInp - 1;
 
     if (strlen(students[studentIndex].firstName) == 0) {
-        cout << "Student with this number dsnt exist" << endl;
+        cout << "Student with this number dsnt exist\n" << endl;
         MenuWork();
         return;
     }
@@ -959,6 +966,14 @@ void MounthSort(int month, Student students[], int size) {
         }
     }
     bubbleSortByDate(filteredStudents, filteredSize);
+
+    if(strlen(filteredStudents[0].firstName) == 0){
+        cout << "\033[2J\033[1;1H";
+        cout << "\nStudent's born in this month, dsnt exist\n" << endl;
+        MenuWork();
+        return;
+    }
+
     cout << "\033[2J\033[1;1H";
     cout << endl;
     for (int i = 0; i < 95; ++i) {
