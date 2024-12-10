@@ -15,12 +15,12 @@ int programmState {0};
 
 struct Student
     {
-        char firstName[MAX_LENGTH] = "";
-        char secondName[MAX_LENGTH] = "";
-        char thirdname[MAX_LENGTH] = "";
+        char firstName[26] = "";
+        char secondName[26] = "";
+        char thirdname[26] = "";
         int joinYear {2024};
         int course {1};
-        char group[MAX_LENGTH] = "";
+        char group[26] = "";
         int birthdate {1};
         int birthmounth {1};
         int birthyear {1924};
@@ -30,7 +30,7 @@ struct Student
 
 Student students[30];
 int studentsNum {0};
-char groups[30][MAX_LENGTH] {""};
+char groups[30][15] {""};
 
 void CloseProgramm();
 void PrintMenu();
@@ -55,6 +55,8 @@ void bubbleSortByDate(Student students[], int size);
 void MounthSort(int month, Student students[], int size);
 void EditStudent();
 void DeleteStudent();
+bool CheckStrAlphOrDash(char string[]);
+bool CheckInput(char string[], char type[]);
 
 
 size_t utf8_length(const char* str) { // Определение длины, для винды и linux
@@ -168,6 +170,9 @@ void CreateUser(){
     char birthFullDate[MAX_LENGTH] = "";
 
     cout << "\033[1mFirst Name:\033[0m ";
+
+    
+
     UserInput(student.firstName);
     
     cout << "\033[1mSecond Name:\033[0m ";
@@ -203,15 +208,25 @@ void CreateUser(){
     }
 
     cout << "\033[1mGrades for 4 subjects (separated by a space):\033[0m ";
-    char studGR[20] = "";
-    UserInput(studGR);
-    int count = 0;
-    char* token = strtok(studGR, " ");
-    while (token != nullptr && count < 4) {
-        student.grades[count] = atoi(token);
-        student.avgGrade += (atoi(token))/4.;
-        count++;
-        token = strtok(nullptr, " ");
+    char studGR[MAX_LENGTH] = "";
+    double avgG {0};
+    cin.getline(studGR, MAX_LENGTH);
+    if (strlen(studGR) > 0) {
+        char* token = strtok(studGR, " ");
+        int count = 0;
+        while (token != nullptr && count < 4) {
+            int grade = atoi(token);
+            if (grade >= 2 && grade <= 5) {
+                student.grades[count] = grade;
+                avgG += grade;
+                ++count;
+            } else {
+                cout << "Incorect grade. Grade must be from 2 to 5." << endl;
+                break;
+            }
+            token = strtok(nullptr, " ");
+        }
+        student.avgGrade = avgG / 4;
     }
 
 
@@ -432,6 +447,7 @@ void EditStudent() {
 }
 
 void DeleteStudent() {
+
     cout << "\033[2J\033[1;1H";
     cout << endl;
 
@@ -801,11 +817,6 @@ void TablePrintStudent(char fname[], char sname[], char tname[], char gname[], i
     }
 
     cout << "\033[2m|\033[0m " << fname;
-    char nameBig[5][MAX_LENGTH] = {""};
-    if (utf8_length(fname) > 26){
-
-    }
-
     for (int i = 0; i < 26-utf8_length(fname); ++i) {
         cout << " ";
     }
