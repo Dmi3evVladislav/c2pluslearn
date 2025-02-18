@@ -1,0 +1,6 @@
+First string ends with F
+Second string ends with S
+Third string without letter
+Fourth string ends with f
+Fiveth string without letter
+
