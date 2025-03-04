@@ -52,6 +52,9 @@ namespace DVV {
         print();
         cout << "\n   Select >> ";
         cin >> select;
+        if(select >= 7){
+            return 1;
+        }
         return items[select - 1].run();
     }
 
