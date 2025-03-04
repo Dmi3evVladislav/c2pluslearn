@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace KDM {
+namespace DVV {
     // класс для пункта меню
     class MenuItem {
     public:

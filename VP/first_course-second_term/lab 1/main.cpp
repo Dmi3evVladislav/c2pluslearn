@@ -5,7 +5,7 @@
 #include <string>
 
 using namespace std;
-using namespace KDM;
+using namespace DVV;
 
 #pragma region функции
 int f1() {
